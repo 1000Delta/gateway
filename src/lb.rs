@@ -13,7 +13,11 @@ impl ProxyHttp for LB {
         ()
     }
 
-    async fn upstream_peer(&self, _session: &mut Session, _ctx: &mut ()) -> Result<Box<HttpPeer>> {
+    async fn upstream_peer(
+        &self,
+        _session: &mut Session,
+        _ctx: &mut Self::CTX,
+    ) -> Result<Box<HttpPeer>> {
         let upstream = self
             .0
             .select(b"", 256) // hash doesn't matter for round robin
