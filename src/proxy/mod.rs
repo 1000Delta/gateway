@@ -2,17 +2,18 @@ pub mod server;
 
 use std::str::from_utf8;
 
+use async_trait::async_trait;
 use pingora::{
     lb::selection::{BackendIter, BackendSelection},
     prelude::*,
 };
 use radix_trie::Trie;
 
-struct Ctx {}
+pub struct Ctx {}
 
 pub struct Proxy<S>
 where
-    S: BackendSelection,
+    S: BackendSelection + 'static,
     S::Iter: BackendIter,
 {
     v_server: Trie<&'static [u8], server::ServerConf<S>>,
@@ -58,9 +59,10 @@ where
     }
 }
 
+#[async_trait]
 impl<S> ProxyHttp for Proxy<S>
 where
-    S: BackendSelection + 'static,
+    S: BackendSelection + 'static + Send + Sync,
     S::Iter: BackendIter,
 {
     type CTX = Ctx;
